@@ -2,10 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/StudioProjects-UMSMounter.iml" filepath="$PROJECT_DIR$/.idea/modules/StudioProjects-UMSMounter.iml" group="UMSMounter" />
-      <module fileurl="file://$PROJECT_DIR$/UMSMounter.iml" filepath="$PROJECT_DIR$/UMSMounter.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/UMSMounter-app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/UMSMounter-app.iml" group="UMSMounter/app" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/UMSMounter2.iml" filepath="$PROJECT_DIR$/.idea/modules/UMSMounter2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/UMSMounter2.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/UMSMounter2.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/UMSMounter2.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/UMSMounter2.app.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/UMSMounter2.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/UMSMounter2.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/UMSMounter2.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/UMSMounter2.app.unitTest.iml" />
     </modules>
   </component>
 </project>

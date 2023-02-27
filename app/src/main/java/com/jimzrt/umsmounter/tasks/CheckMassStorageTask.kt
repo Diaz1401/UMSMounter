@@ -1,21 +1,22 @@
 package com.jimzrt.umsmounter.tasks
 
 import android.content.Context
+import com.topjohnwu.superuser.Shell
 import java.io.File
 
 class CheckMassStorageTask : BaseTask() {
+    var CONFIGFS_DIR = "/config/usb_gadget/g1/functions/mass_storage.0/lun.0"
+    var CONFIGFS_CDROM_DIR = "/config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom"
     override fun execute(): Boolean {
         val sharedPref = ctx!!.get()!!.getSharedPreferences(null, Context.MODE_PRIVATE)
         val editor = sharedPref.edit()
-        val configfsDir = File("/config/usb_gadget/g1/functions/mass_storage.0/lun.0")
         val usbDir = File("/sys/class/android_usb/android0/f_mass_storage/lun")
         val usbDir2 = File("/sys/class/android_usb/android0/f_mass_storage/lun0")
-        return if (configfsDir.exists() && configfsDir.isDirectory) {
+        return if (suPathExists(CONFIGFS_DIR)) {
             result = "mass_storage via configfs supported!\n"
             editor.putString("usbMode", "configfs")
-            editor.putString("usbPath", configfsDir.absolutePath)
-            val cdrom = File("/config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom")
-            if (cdrom.exists()) {
+            editor.putString("usbPath", CONFIGFS_DIR)
+            if (suPathExists(CONFIGFS_CDROM_DIR)) {
                 editor.putBoolean("cdrom", true)
             } else {
                 editor.putBoolean("cdrom", false)
@@ -50,6 +51,12 @@ class CheckMassStorageTask : BaseTask() {
             result = "mass_storage not supported!\n"
             false
         }
+    }
+
+
+    fun suPathExists(path: String): Boolean {
+        var result = Shell.cmd("if [ -d \"$path\" ]; echo true; fi").exec()
+        return result.out[0] == "true"
     }
 
     init {
