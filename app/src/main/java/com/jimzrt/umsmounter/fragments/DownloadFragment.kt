@@ -88,7 +88,7 @@ class DownloadFragment : Fragment() {
                 }
             } else {
                 try {
-                    InputStreamReader(URL("https://softwarebakery.com/apps/drivedroid/repositories/main.json").openStream()).use { reader ->
+                    InputStreamReader(URL("https://ddrg.hexed.pw/repo.json").openStream()).use { reader ->
                         var gson = GsonBuilder().create()
                         list = gson.fromJson(reader, imageListType)
                         val iterator = list?.iterator()
