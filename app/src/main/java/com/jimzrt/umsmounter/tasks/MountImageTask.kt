@@ -43,13 +43,17 @@ class MountImageTask(imageItem: ImageItem, mode: String) : BaseTask() {
         }
         return when (usbMode) {
             "configfs" -> {
-                Shell.su("setprop sys.usb.config none",
-                        "echo \"\" > /config/usb_gadget/g1/UDC",
-                        "echo $removable > $usbPath/removable",
-                        "echo $ro > $usbPath/ro",
-                        "echo $cdrom > $usbPath/cdrom",
-                        "echo \"" + imageItem.rootPath + "\" > " + usbPath + "/file",
-                        "setprop sys.usb.config mass_storage").exec()
+                Shell.cmd("setprop sys.usb.configfs 1",
+                    "echo \"\" > /config/usb_gadget/g1/UDC",
+                    "rm /config/usb_gadget/g1/configs/b.1/f*",
+                    "mkdir -p /config/usb_gadget/g1/functions/mass_storage.0/lun.0/",
+                    "ln -s /config/usb_gadget/g1/functions/mass_storage.0 /config/usb_gadget/g1/configs/b.1/f1",
+                    "echo 1 > $usbPath/removable",
+                    "echo 0 > $usbPath/ro",
+                    "echo 1 > $usbPath/cdrom",
+                    "echo \"/storage/emulated/0/ISO/MyImage.iso\" > " + usbPath + "/file",
+                    "getprop sys.usb.controller > /config/usb_gadget/g1/UDC",
+                    "setprop sys.usb.config cdrom").exec()
                 result = """${imageItem.name} mounted!
 """
                 true
