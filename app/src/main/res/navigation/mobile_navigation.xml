@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.jimzrt.umsmounter.fragments.MainFragment"
+        android:label="@string/source_code"
+        tools:layout="@layout/fragment_main" />
+
+    <fragment
+        android:id="@+id/nav_create_image"
+        android:name="com.jimzrt.umsmounter.fragments.ImageCreationFragment"
+        android:label="@string/create_image"
+        tools:layout="@layout/fragment_image_creation" />
+
+    <fragment
+        android:id="@+id/nav_download_image"
+        android:name="com.jimzrt.umsmounter.fragments.DownloadFragment"
+        android:label="@string/download_image"
+        tools:layout="@layout/fragment_download" />
+
+    <fragment
+        android:id="@+id/nav_credits"
+        android:name="com.jimzrt.umsmounter.fragments.CreditsFragment"
+        android:label="@string/credits"
+        tools:layout="@layout/fragment_credits" />
+</navigation>

@@ -1,6 +1,7 @@
 package com.jimzrt.umsmounter.tasks
 
 import android.util.Log
+import com.jimzrt.umsmounter.model.BaseTask
 import com.topjohnwu.superuser.Shell
 
 class CheckRootTask : BaseTask() {

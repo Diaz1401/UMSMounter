@@ -1,11 +1,14 @@
 package com.jimzrt.umsmounter.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.jimzrt.umsmounter.activities.MainActivity
 import com.jimzrt.umsmounter.model.ImageItem
 import com.jimzrt.umsmounter.utils.Helper
+import com.topjohnwu.superuser.io.SuFile
+import com.topjohnwu.superuser.nio.ExtendedFile
 import java.io.File
 import java.util.*
 
@@ -37,6 +40,7 @@ class ImageItemViewModel : ViewModel() {
     }
 
     fun getImages(force: Boolean): LiveData<MutableList<ImageItem>> {
+        Log.d("Files", "Llego aquí?????")
         if (imageItems == null || force) {
             imageItems = MutableLiveData()
             loadImages()
@@ -47,13 +51,18 @@ class ImageItemViewModel : ViewModel() {
     private fun loadImages() {
         val items: MutableList<ImageItem> = ArrayList()
         val path = MainActivity.USERPATH
-        val f = File(path)
+        var f = SuFile("/storage/emulated/0/UMSMounter")
         val files = f.listFiles()
+        Log.d("Path", "Comprobemos...")
+        if (files != null) {
+            Log.d("FilesPath","Aver: ${files.joinToString { "," }}")
+        }
         if (files != null) {
             for (file in files) {
                 if (file.name == "cache") {
                     continue
                 }
+
                 val item = ImageItem(file.name, MainActivity.ROOTPATH + "/" + file.name, MainActivity.USERPATH + "/" + file.name, Helper.humanReadableByteCount(file.length()))
                 items.add(item)
             }

@@ -9,11 +9,11 @@ android {
 
     //     }
     // }
-    compileSdkVersion 29
+    compileSdkVersion 33
     defaultConfig {
         applicationId "com.jimzrt.umsmounter"
-        minSdkVersion 21
-        targetSdkVersion 29
+        minSdkVersion 30
+        targetSdkVersion 33
         versionCode 1
         versionName "0.1.2"
        // testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
@@ -34,6 +34,13 @@ android {
         targetCompatibility 1.8
         sourceCompatibility 1.8
     }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+
+    viewBinding {
+        enabled = true
+    }
 }
 
 repositories {
@@ -53,4 +60,7 @@ dependencies {
     //implementation 'com.tonyodev.fetch2:fetch2:2.1.0-RC15'
     implementation 'com.github.tonyofrancis.fetch:xfetch2:3.1.3'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    implementation "androidx.navigation:navigation-fragment-ktx:2.2.0"
+    implementation "androidx.navigation:navigation-ui-ktx:2.2.0"
+
 }

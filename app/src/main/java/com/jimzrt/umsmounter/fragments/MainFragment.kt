@@ -42,7 +42,6 @@ import kotlin.math.ceil
  * A placeholder fragment containing a simple view.
  */
 class MainFragment : Fragment(), OnImageListListener {
-    // Animation animation;
     private var listView: RecyclerView? = null
     private var listViewAdapter: ImageListAdapter? = null
     private var usbMode: Spinner? = null
@@ -50,6 +49,7 @@ class MainFragment : Fragment(), OnImageListListener {
     private var functionMode: String? = "mtp,adb"
     private var mainFetch: Fetch? = null
     private var model: ImageItemViewModel? = null
+
     override fun onActivityCreated(bundle: Bundle?) {
         super.onActivityCreated(bundle)
         if (populate) {
@@ -61,7 +61,7 @@ class MainFragment : Fragment(), OnImageListListener {
         super.onHiddenChanged(hidden)
         if (!hidden) {
             if (activity != null) {
-                (activity as AppCompatActivity?)!!.supportActionBar!!.title = "UMS Mounter"
+                (activity as AppCompatActivity?)!!.supportActionBar!!.title = "UMS Mounter222222"
             }
         }
     }
@@ -83,7 +83,9 @@ class MainFragment : Fragment(), OnImageListListener {
             mainFetch!!.removeAll()
         }
         val view = inflater.inflate(R.layout.fragment_main, container, false)
-        if (activity != null) (activity as AppCompatActivity?)!!.supportActionBar!!.title = "UMS Mounter"
+        if (activity != null) {
+            (activity as AppCompatActivity?)!!.supportActionBar!!.title = "UMS Mounter222222222222"
+        }
         listView = view.findViewById(R.id.listview)
         val mLayoutManager = LinearLayoutManager(activity)
         listView?.layoutManager = mLayoutManager
@@ -160,7 +162,6 @@ class MainFragment : Fragment(), OnImageListListener {
     }
 
     fun unmount(functionMode: String?) {
-
         activity?.let {
             BackgroundTask(it).setDelegate(object : BackgroundTask.AsyncResponse {
                 override fun processFinish(successful: Boolean?, output: String?) {

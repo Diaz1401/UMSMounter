@@ -3,7 +3,7 @@ package com.jimzrt.umsmounter.utils
 import android.app.Activity
 import android.app.ProgressDialog
 import android.os.AsyncTask
-import com.jimzrt.umsmounter.tasks.BaseTask
+import com.jimzrt.umsmounter.model.BaseTask
 import java.lang.ref.WeakReference
 
 class BackgroundTask(activity: Activity) : AsyncTask<Void?, Void?, Void?>() {

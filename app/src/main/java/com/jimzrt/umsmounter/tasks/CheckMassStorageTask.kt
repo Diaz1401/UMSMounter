@@ -1,12 +1,9 @@
 package com.jimzrt.umsmounter.tasks
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.content.SharedPreferences.Editor
-import android.util.Log
-import com.topjohnwu.superuser.Shell
+import com.jimzrt.umsmounter.model.BaseTask
 import com.topjohnwu.superuser.io.SuFile
-import java.io.File
 
 const val CONFIGFS_DIR = "/config/usb_gadget/g1/functions/mass_storage.0/lun.0"
 const val CONFIGFS_CDROM_DIR = "/config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom"

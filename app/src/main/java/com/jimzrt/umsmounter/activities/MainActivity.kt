@@ -5,25 +5,25 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
+import com.google.android.material.snackbar.Snackbar
 import com.google.gson.GsonBuilder
 import com.jimzrt.umsmounter.BuildConfig
 import com.jimzrt.umsmounter.R
-import com.jimzrt.umsmounter.fragments.CreditsFragment
-import com.jimzrt.umsmounter.fragments.DownloadFragment
+import com.jimzrt.umsmounter.databinding.ActivityMainBinding
 import com.jimzrt.umsmounter.fragments.DownloadFragment.OnImageDownloadListener
-import com.jimzrt.umsmounter.fragments.ImageCreationFragment
 import com.jimzrt.umsmounter.fragments.ImageCreationFragment.OnImageCreationListener
 import com.jimzrt.umsmounter.fragments.MainFragment
 import com.jimzrt.umsmounter.model.DownloadItem
@@ -33,198 +33,63 @@ import com.jimzrt.umsmounter.utils.BackgroundTask
 import com.jimzrt.umsmounter.utils.Helper
 
 class MainActivity : AppCompatActivity(), OnImageCreationListener, OnImageDownloadListener {
+    private lateinit var binding: ActivityMainBinding
+    private lateinit var appBarConfiguration: AppBarConfiguration
+
     private var mainFragment: MainFragment? = null
-    private var createImageFragment: ImageCreationFragment? = null
-    private var downloadFragment: DownloadFragment? = null
-    private var creditsFragment: CreditsFragment? = null
-    private var currentFragment: Fragment? = null
-    private var mDrawerLayout: DrawerLayout? = null
-    private var navigationView: NavigationView? = null
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
-        return true
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        mDrawerLayout = findViewById(R.id.drawer_layout)
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        if (supportActionBar != null) {
-            supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-            supportActionBar!!.setHomeButtonEnabled(true)
-            supportActionBar!!.setHomeAsUpIndicator(R.drawable.ic_menu)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+
+        setContentView(binding.root)
+
+        setSupportActionBar(binding.appBarMain.toolbar)
+        binding.appBarMain.toolbar.setOnClickListener { view ->
+            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
         }
+        val drawerLayout: DrawerLayout = binding.drawerLayout
+        val navView: NavigationView = binding.navView
+        val navController = findNavController(R.id.nav_host_fragment_content_main2)
+
+        appBarConfiguration = AppBarConfiguration(
+            setOf(R.id.nav_home, R.id.nav_credits, R.id.nav_credits), drawerLayout
+        )
+        setupActionBarWithNavController(navController, appBarConfiguration)
+        navView.setupWithNavController(navController)
+
         if (findViewById<View?>(R.id.fragment_container) != null) {
             if (savedInstanceState != null) {
                 return
             }
-
-            // Create a new Fragment to be placed in the activity layout
             mainFragment = MainFragment()
-            createImageFragment = ImageCreationFragment()
-            downloadFragment = DownloadFragment()
-            creditsFragment = CreditsFragment()
             val sharedPref = getSharedPreferences(null, Context.MODE_PRIVATE)
             val firstRun = sharedPref.getBoolean("firstRun", true)
             val version = sharedPref.getString("version", "")
-            USERPATH = sharedPref.getString("userpath", "")
-            ROOTPATH = sharedPref.getString("rootpath", "")
             if (firstRun || BuildConfig.VERSION_NAME != version) {
-                checkAll()
-            } else {
-                // Add the fragment to the 'fragment_container' FrameLayout
-                supportFragmentManager.beginTransaction()
-                        .add(R.id.fragment_container, mainFragment!!).commit()
+                checkPrerequisites()
             }
         }
-        currentFragment = mainFragment
-        navigationView = findViewById(R.id.nav_view)
-        navigationView?.menu?.getItem(0)?.isChecked = true
-        navigationView?.setNavigationItemSelectedListener { menuItem: MenuItem ->
-            // set item as selected to persist highlight
-            // menuItem.setChecked(true);
-
-            //   mDrawerLayout.closeDrawers();
-            val delay = 150
-            when (menuItem.itemId) {
-                R.id.nav_home -> if (currentFragment !== mainFragment) {
-                    Handler().postDelayed({ showMain() }, delay.toLong())
-                }
-                R.id.nav_create_image -> if (currentFragment !== createImageFragment) {
-                    Handler().postDelayed({ showCreateImage() }, delay.toLong())
-                }
-                R.id.nav_download_image -> if (currentFragment !== downloadFragment) {
-                    Handler().postDelayed({ showDownloadImage() }, delay.toLong())
-                }
-                R.id.nav_credits -> if (currentFragment !== createImageFragment) {
-                    Handler().postDelayed({ showCredits() }, delay.toLong())
-                }
-            }
-            // Add code here to update the UI based on the item selected
-            // For example, swap UI fragments here
-            mDrawerLayout?.closeDrawer(GravityCompat.START)
-            true
-        }
-
-
-        //  }
-        supportFragmentManager.addOnBackStackChangedListener {
-            when {
-                mainFragment!!.isVisible -> {
-                    navigationView?.setCheckedItem(R.id.nav_home)
-                    currentFragment = mainFragment
-                }
-                createImageFragment!!.isAdded -> {
-                    navigationView?.setCheckedItem(R.id.nav_create_image)
-                    currentFragment = createImageFragment
-                }
-                downloadFragment!!.isAdded -> {
-                    navigationView?.setCheckedItem(R.id.nav_download_image)
-                    currentFragment = downloadFragment
-                }
-                creditsFragment!!.isAdded -> {
-                    navigationView?.setCheckedItem(R.id.nav_credits)
-                    currentFragment = creditsFragment
-                }
-            }
-        }
-
-
-        //Helper.trustAllHosts();
-    }
-
-    private fun showDownloadImage() {
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.setCustomAnimations(android.R.anim.fade_in,
-                android.R.anim.fade_out)
-        if (currentFragment === mainFragment) {
-            transaction.hide(mainFragment!!)
-        } else {
-            transaction.remove(currentFragment!!)
-        }
-        transaction.add(R.id.fragment_container, downloadFragment!!)
-        transaction.addToBackStack(null)
-        transaction.commit()
-        currentFragment = downloadFragment
-        navigationView!!.setCheckedItem(R.id.nav_download_image)
-    }
-
-    private fun showCredits() {
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.setCustomAnimations(android.R.anim.fade_in,
-                android.R.anim.fade_out)
-        if (currentFragment === mainFragment) {
-            transaction.hide(mainFragment!!)
-        } else {
-            transaction.remove(currentFragment!!)
-        }
-        transaction.add(R.id.fragment_container, creditsFragment!!)
-        transaction.addToBackStack(null)
-        transaction.commit()
-        currentFragment = creditsFragment
-        navigationView!!.setCheckedItem(R.id.nav_credits)
-    }
-
-    public override fun onStart() {
-        super.onStart()
-    }
-
-    private fun showCreateImage() {
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.setCustomAnimations(android.R.anim.fade_in,
-                android.R.anim.fade_out)
-        if (currentFragment === mainFragment) {
-            transaction.hide(mainFragment!!)
-        } else {
-            transaction.remove(currentFragment!!)
-        }
-        transaction.add(R.id.fragment_container, createImageFragment!!)
-        transaction.addToBackStack(null)
-        transaction.commit()
-        currentFragment = createImageFragment
-        navigationView!!.setCheckedItem(R.id.nav_create_image)
-    }
-
-    private fun showMain() {
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.setCustomAnimations(android.R.anim.fade_in,
-                android.R.anim.fade_out)
-        transaction.remove(currentFragment!!)
-        transaction.show(mainFragment!!)
-        //transaction.addToBackStack(null);
-        transaction.commit()
-        currentFragment = mainFragment
-        navigationView!!.setCheckedItem(R.id.nav_home)
-        supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
 
+    // TODO: Check initial USB function!
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_revert -> {
-                mainFragment!!.unmount("mtp,adb")
-                return true
-            }
-            R.id.action_check_dependencies -> {
-                checkAll()
-                return true
-            }
-            android.R.id.home -> {
-                mDrawerLayout!!.openDrawer(GravityCompat.START)
-                return true
-            }
+            R.id.action_revert -> mainFragment!!.unmount("mtp,adb")
+            R.id.action_check_dependencies -> checkPrerequisites()
         }
         return super.onOptionsItemSelected(item)
     }
 
-    private fun checkAll() {
+    private fun checkPrerequisites() {
         val sharedPref = getSharedPreferences(null, Context.MODE_PRIVATE)
         val context = this
         BackgroundTask(this).setDelegate(object : BackgroundTask.AsyncResponse {
@@ -244,18 +109,12 @@ class MainActivity : AppCompatActivity(), OnImageCreationListener, OnImageDownlo
                     val dialog = builder.create()
                     dialog.show()
                 }
-                if (!mainFragment!!.isAdded) {
-                    // Add the fragment to the 'fragment_container' FrameLayout
-                    supportFragmentManager.beginTransaction()
-                            .add(R.id.fragment_container, mainFragment!!).commit()
-                }
             }
         }
         ).setTasks(arrayOf(CheckRootTask(), CheckPermissionTask(), SetPathsTask(), CheckFolderTask(), CheckMassStorageTask())).execute()
     }
 
-    override fun OnImageCreation(imageItem: String?) {
-        showMain()
+    override fun onImageCreation(imageItem: String?) {
         val imageItemObj = ImageItem(imageItem!!, "$ROOTPATH/$imageItem", "$USERPATH/$imageItem", Helper.humanReadableByteCount(0))
         mainFragment!!.createImage(imageItemObj)
     }
@@ -274,12 +133,10 @@ class MainActivity : AppCompatActivity(), OnImageCreationListener, OnImageDownlo
         if (requestCode == 0) {
             // Make sure the request was successful
             if (resultCode == Activity.RESULT_OK) {
-//
                 val name = data!!.getStringExtra("name")
                 val url = data.getStringExtra("url")
                 val imageItem = ImageItem(name!!, "$ROOTPATH/$name", "$USERPATH/$name", Helper.humanReadableByteCount(0))
                 imageItem.url = url
-                showMain()
                 mainFragment!!.addImage(imageItem)
             }
         }
@@ -299,14 +156,10 @@ class MainActivity : AppCompatActivity(), OnImageCreationListener, OnImageDownlo
     }
 
     companion object {
-        const val ROOTDIR = "/UMSMounter"
+        const val ROOTPATH = "/UMSMounter"
         const val CACHEDIR = "/cache"
+        const val USERPATH = "/sdcard/UMSMounter" // TODO: Obtener auto
 
-        @JvmField
-        var ROOTPATH: String? = null
-
-        @JvmField
-        var USERPATH: String? = null
         const val WRITE_EXTERNAL_STORAGE_PERM = 1337
     }
 }

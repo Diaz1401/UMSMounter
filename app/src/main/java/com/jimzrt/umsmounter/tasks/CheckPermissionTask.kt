@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.jimzrt.umsmounter.activities.MainActivity
+import com.jimzrt.umsmounter.model.BaseTask
 
 class CheckPermissionTask : BaseTask() {
     override fun execute(): Boolean {

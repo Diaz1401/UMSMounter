@@ -19,9 +19,7 @@ class LinuxImageActivity : AppCompatActivity() {
     private var releaseList: ListView? = null
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        //((MainActivity)getActivity()).getSupportActionBar().setDisplayUseLogoEnabled(false);
-        // ((MainActivity)getActivity()).getSupportActionBar().setHomeAsUpIndicator(null);
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+
         super.onCreate(savedInstanceState)
 
         // Get the Intent that started this activity and extract the string

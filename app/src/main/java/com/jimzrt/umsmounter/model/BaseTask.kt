@@ -1,4 +1,4 @@
-package com.jimzrt.umsmounter.tasks
+package com.jimzrt.umsmounter.model
 
 import android.app.Activity
 import java.lang.ref.WeakReference

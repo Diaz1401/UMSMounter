@@ -96,7 +96,7 @@ class ImageCreationFragment : Fragment() {
                     }
                     activity!!.runOnUiThread {
                         //    Toast.makeText(getActivity(), "Image successfully created",Toast.LENGTH_LONG).show();
-                        mCallback!!.OnImageCreation(imageName)
+                        mCallback!!.onImageCreation(imageName)
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -107,6 +107,6 @@ class ImageCreationFragment : Fragment() {
     }
 
     interface OnImageCreationListener {
-        fun OnImageCreation(imageItem: String?)
+        fun onImageCreation(imageItem: String?)
     }
 }

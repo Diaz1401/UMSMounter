@@ -1,6 +1,7 @@
 package com.jimzrt.umsmounter.tasks
 
 import android.content.Context
+import com.jimzrt.umsmounter.model.BaseTask
 import com.jimzrt.umsmounter.model.ImageItem
 import com.topjohnwu.superuser.Shell
 import java.util.*

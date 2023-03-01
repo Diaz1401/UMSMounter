@@ -1,6 +1,7 @@
 package com.jimzrt.umsmounter.tasks
 
 import com.jimzrt.umsmounter.activities.MainActivity
+import com.jimzrt.umsmounter.model.BaseTask
 import com.jimzrt.umsmounter.utils.Helper
 import java.io.File
 
