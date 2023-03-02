@@ -10,6 +10,8 @@ import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.documentfile.provider.DocumentFile
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
@@ -29,6 +31,7 @@ import com.jimzrt.umsmounter.utils.BackgroundTask
 import com.jimzrt.umsmounter.utils.Helper
 import com.jimzrt.umsmounter.utils.SharedPrefsHelper
 
+
 class MainActivity : AppCompatActivity(), OnImageCreationListener, OnImageDownloadListener {
 
 
@@ -42,8 +45,8 @@ class MainActivity : AppCompatActivity(), OnImageCreationListener, OnImageDownlo
         SharedPrefsHelper.init(this)
         setContentView(binding.root)
 
-        if (isFirstRun()) { // Set welcome slides
-            val intent = Intent(binding.root.context, SlidersIntroAdapter::class.java)
+        if (isFirstRun()) { // Set wizard slides
+            val intent = Intent(this, SlidersIntroAdapter::class.java)
             binding.root.context.startActivity(intent)
         }
 
@@ -54,8 +57,6 @@ class MainActivity : AppCompatActivity(), OnImageCreationListener, OnImageDownlo
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         binding.navView.setupWithNavController(navController)
-
-        //mainFragment = null
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -68,7 +69,7 @@ class MainActivity : AppCompatActivity(), OnImageCreationListener, OnImageDownlo
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             //R.id.action_revert -> mainFragment!!.unmount("mtp,adb")
-            R.id.action_check_dependencies -> checkPrerequisites()
+            //R.id.action_check_dependencies -> checkPrerequisites()
         }
         return super.onOptionsItemSelected(item)
     }
@@ -78,59 +79,9 @@ class MainActivity : AppCompatActivity(), OnImageCreationListener, OnImageDownlo
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
-    private fun chooseWorkingDirectory() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
-            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                    Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or
-                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-        }
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val data: Intent? = result.data
-                data?.data?.also { uri ->
-                    contentResolver.takePersistableUriPermission(uri,
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                                  Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-
-                    SharedPrefsHelper.write(SharedPrefsHelper.HAS_RW_EXTERNAL_PERMISSION, true)
-                    SharedPrefsHelper.write(SharedPrefsHelper.USER_PATH, uri.path!!)
-                    /* Necesito esto para leer los ficheros
-                    val rootDir = DocumentFile.fromTreeUri(this, uri)
-                    rootDir?.listFiles()?.forEach { file ->
-                        Log.d("FILES!", "Found file: ${file.name}")
-                    }*/
-                }
-            }
-        }.launch(intent)
-
-    }
-
-
-
     private fun isFirstRun() : Boolean {
         return SharedPrefsHelper.read(SharedPrefsHelper.IS_FIRST_RUN, true) ||
                  BuildConfig.VERSION_NAME != SharedPrefsHelper.read(SharedPrefsHelper.VERSION, "")
-    }
-
-    private fun checkPrerequisites() {
-        val context = this
-
-        BackgroundTask(this).setDelegate(object : BackgroundTask.AsyncResponse {
-            override fun processFinish(successful: Boolean?, output: String?) {
-                if (successful!!) {
-                    SharedPrefsHelper.write(SharedPrefsHelper.IS_FIRST_RUN, false)
-                } else {
-                    SharedPrefsHelper.clear()
-                    val builder = AlertDialog.Builder(context)
-                    builder.setMessage(output)
-                            .setTitle("Error!")
-                    builder.setPositiveButton("Ok", null)
-                    val dialog = builder.create()
-                    dialog.show()
-                }
-            }
-        }
-        ).setTasks(arrayOf(CheckRootTask(), SetPathsTask(), CheckFolderTask(), CheckMassStorageTask())).execute()
     }
 
     override fun onImageCreation(imageItem: String?) {
@@ -148,53 +99,27 @@ class MainActivity : AppCompatActivity(), OnImageCreationListener, OnImageDownlo
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        // Check which request we're responding to
         if (requestCode == 0) {
-            // Make sure the request was successful
             if (resultCode == Activity.RESULT_OK) {
                 val name = data!!.getStringExtra("name")
                 val url = data.getStringExtra("url")
                 val imageItem = ImageItem(name!!, "$ROOTPATH/$name", "$USERPATH/$name", Helper.humanReadableByteCount(0))
                 imageItem.url = url
-               // mainFragment!!.addImage(imageItem)
-            }
-        } else if (requestCode == 1 && resultCode == RESULT_OK) {
-            Log.d("FILES!", "Llego aquí?")
-            data?.data?.also { uri ->
-                // Take persistent permission for the selected directory
-                contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-
-                // Get the DocumentFile representing the selected directory
-                val rootDir = DocumentFile.fromTreeUri(this, uri)
-
-                // Read the contents of the directory
-                rootDir?.listFiles()?.forEach { file ->
-                    Log.d("FILES!", "Found file: ${file.name}")
-                }
             }
         }
     }
-/*
-    override fun onRequestPermissionsResult(requestCode: Int,
-                                            permissions: Array<String>, grantResults: IntArray) {
-        if (requestCode == WRITE_EXTERNAL_STORAGE_PERM) {
-            val sharedPref = getSharedPreferences(null, Context.MODE_PRIVATE)
-            val editor = sharedPref.edit()
-            editor.putBoolean("hasPermission", true)
-            editor.apply()
-            Toast.makeText(this, "granteddd!!!", Toast.LENGTH_LONG).show()
-        } else {
-            Toast.makeText(this, "dont know this shit", Toast.LENGTH_LONG).show()
-        }
-    }
-*/
+
     companion object {
         const val ROOTPATH = "/UMSMounter"
         const val CACHEDIR = "/cache"
         const val USERPATH = "/sdcard/UMSMounter" // TODO: Obtener auto
         const val WRITE_EXTERNAL_STORAGE_PERM = 1337
-
-        const val REQUEST_CODE_OPEN_DIRECTORY = "1"
     }
 }
+
+/* Necesito esto para leer los ficheros
+    val rootDir = DocumentFile.fromTreeUri(this, uri)
+    rootDir?.listFiles()?.forEach { file ->
+        Log.d("FILES!", "Found file: ${file.name}")
+    }*/
+

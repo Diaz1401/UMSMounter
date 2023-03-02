@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.github.appintro.SlidePolicy
 import com.jimzrt.umsmounter.R
+import com.jimzrt.umsmounter.utils.SharedPrefsHelper
 import com.topjohnwu.superuser.io.SuFile
 
 class SlideThirdFragment : Fragment(), SlidePolicy {
@@ -35,6 +36,7 @@ class SlideThirdFragment : Fragment(), SlidePolicy {
             textCompatibility.setTextColor(RED)
             textCompatibility.text = NOT_COMPATIBLE_TEXT
         }
+        SharedPrefsHelper.write(SharedPrefsHelper.IS_FIRST_RUN, false)
     }
 
     override val isPolicyRespected: Boolean
