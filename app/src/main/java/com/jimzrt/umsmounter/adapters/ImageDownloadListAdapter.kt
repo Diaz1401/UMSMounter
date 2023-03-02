@@ -1,4 +1,4 @@
-package com.jimzrt.umsmounter.listadapters
+package com.jimzrt.umsmounter.adapters
 
 import android.view.LayoutInflater
 import android.view.View
@@ -24,7 +24,7 @@ class ImageDownloadListAdapter // Provide a suitable constructor (depends on the
 
     override fun onClick(v: View) {
         val itemPosition = mRecyclerView!!.getChildLayoutPosition(v)
-        mCallback.OnImageListClick(mDataset!![itemPosition])
+        mCallback.onImageListClick(mDataset!![itemPosition])
     }
 
     fun clear() {

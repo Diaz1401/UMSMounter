@@ -6,11 +6,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:minHeight="118dp"
-    android:tag="fragment_main"
-    tools:context="com.jimzrt.umsmounter.fragments.MainFragment"
-    tools:layout_editor_absoluteY="137dp"
+    android:tag="fragment_main">
+<!--    tools:context="com.jimzrt.umsmounter.fragments.MainFragment"
+    tools:layout_editor_absoluteY="137dp"-->
 
-    >
+
 
     <TextView
         android:id="@+id/textView"

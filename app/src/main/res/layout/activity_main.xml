@@ -8,6 +8,7 @@
     android:fitsSystemWindows="true"
     tools:context="com.jimzrt.umsmounter.activities.MainActivity">
 
+
     <include
         android:id="@+id/app_bar_main"
         layout="@layout/app_bar_main"
@@ -34,4 +35,5 @@
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header"
         app:menu="@menu/drawer_view" />
+
 </androidx.drawerlayout.widget.DrawerLayout>

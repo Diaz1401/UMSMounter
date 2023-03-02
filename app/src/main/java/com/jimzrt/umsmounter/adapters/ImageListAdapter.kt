@@ -1,4 +1,4 @@
-package com.jimzrt.umsmounter.listadapters
+package com.jimzrt.umsmounter.adapters
 
 import android.animation.ValueAnimator
 import android.content.Context

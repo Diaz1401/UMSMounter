@@ -29,6 +29,11 @@
         <activity
             android:name="com.jimzrt.umsmounter.activities.LinuxImageActivity"
             android:parentActivityName="com.jimzrt.umsmounter.activities.MainActivity" />
+
+        <activity
+            android:name=".adapters.SlidersIntroAdapter"
+            android:theme="@style/AppIntroTheme"/>
+
     </application>
 
 </manifest>

@@ -21,8 +21,8 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.jimzrt.umsmounter.R
 import com.jimzrt.umsmounter.activities.MainActivity
-import com.jimzrt.umsmounter.listadapters.ImageListAdapter
-import com.jimzrt.umsmounter.listadapters.ImageListAdapter.OnImageListListener
+import com.jimzrt.umsmounter.adapters.ImageListAdapter
+import com.jimzrt.umsmounter.adapters.ImageListAdapter.OnImageListListener
 import com.jimzrt.umsmounter.model.ImageItem
 import com.jimzrt.umsmounter.tasks.MountImageTask
 import com.jimzrt.umsmounter.tasks.UnmountingTask
@@ -73,6 +73,7 @@ class MainFragment : Fragment(), OnImageListListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+        Log.d("AVER", "Entro a Main Fragment")
         if (mainFetch == null) {
             val fetchConfiguration = FetchConfiguration.Builder(context!!)
                     .setDownloadConcurrentLimit(4) // Allows Fetch to download 4 downloads in Parallel.
@@ -83,9 +84,10 @@ class MainFragment : Fragment(), OnImageListListener {
             mainFetch!!.removeAll()
         }
         val view = inflater.inflate(R.layout.fragment_main, container, false)
+        /*
         if (activity != null) {
             (activity as AppCompatActivity?)!!.supportActionBar!!.title = "UMS Mounter222222222222"
-        }
+        }*/
         listView = view.findViewById(R.id.listview)
         val mLayoutManager = LinearLayoutManager(activity)
         listView?.layoutManager = mLayoutManager

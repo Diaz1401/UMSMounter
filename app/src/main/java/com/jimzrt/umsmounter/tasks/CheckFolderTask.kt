@@ -20,6 +20,7 @@ class CheckFolderTask : BaseTask() {
             success = f.mkdir()
             result = "Cache path $cachePath not found, creating.\n"
         }
+
         return success
     }
 

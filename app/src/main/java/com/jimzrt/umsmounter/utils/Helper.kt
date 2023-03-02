@@ -32,6 +32,7 @@ object Helper {
     fun trustAllHosts() {
         // Create a trust manager that does not validate certificate chains
         val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
+
             override fun getAcceptedIssuers(): Array<X509Certificate> {
                 return arrayOf()
             }
@@ -88,6 +89,8 @@ object Helper {
             )
         }
     }
+
+
 
     fun combinePaths(path1: String?, path2: String?): String {
         val file1 = File(path1)

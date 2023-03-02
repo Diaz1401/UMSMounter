@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.os.AsyncTask
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.jimzrt.umsmounter.R
-import com.jimzrt.umsmounter.listadapters.ImageDownloadListAdapter
+import com.jimzrt.umsmounter.adapters.ImageDownloadListAdapter
 import com.jimzrt.umsmounter.model.DownloadItem
 import com.jimzrt.umsmounter.utils.Helper
 import java.io.*
@@ -43,6 +44,7 @@ class DownloadFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+        Log.d("AVER", "Creo download")
         //if (activity != null) {
         (activity as AppCompatActivity?)!!.supportActionBar!!.title = "Download Image"
         // }
@@ -66,7 +68,7 @@ class DownloadFragment : Fragment() {
     }
 
     interface OnImageDownloadListener {
-        fun OnImageListClick(downloadItem: DownloadItem?)
+        fun onImageListClick(downloadItem: DownloadItem?)
     }
 
     private class DownloadFilesTask internal constructor(activity: Activity?, listAdapter: ImageDownloadListAdapter) : AsyncTask<Boolean?, Void?, List<DownloadItem>?>() {

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_home">
+    app:startDestination="@+id/fragment_slide1">
 
     <fragment
         android:id="@+id/nav_home"
@@ -28,4 +28,11 @@
         android:name="com.jimzrt.umsmounter.fragments.CreditsFragment"
         android:label="@string/credits"
         tools:layout="@layout/fragment_credits" />
+
+    <fragment
+        android:id="@+id/fragment_slide1"
+        android:name="com.jimzrt.umsmounter.fragments.SlideFirstFragment"
+        android:label="@string/source_code"
+        tools:layout="@layout/fragment_slide1" />
+
 </navigation>

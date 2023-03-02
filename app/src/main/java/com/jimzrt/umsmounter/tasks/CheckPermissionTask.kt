@@ -3,6 +3,8 @@ package com.jimzrt.umsmounter.tasks
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Environment
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.jimzrt.umsmounter.activities.MainActivity
@@ -14,10 +16,12 @@ class CheckPermissionTask : BaseTask() {
                         Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
 
-
-            // No explanation needed; request the permission
-            ActivityCompat.requestPermissions(ctx!!.get()!!, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+            ActivityCompat.requestPermissions(ctx!!.get()!!,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
                     MainActivity.WRITE_EXTERNAL_STORAGE_PERM)
+
+            Log.d("MyPath", "${Environment.getExternalStorageDirectory().absolutePath}")
+
             val sharedPref = ctx!!.get()!!.getSharedPreferences(null, Context.MODE_PRIVATE)
             var hasPerm = sharedPref.getBoolean("hasPermission", false)
             while (!hasPerm) {
