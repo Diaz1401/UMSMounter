@@ -63,8 +63,8 @@ class ImageItemViewModel : ViewModel() {
                     continue
                 }
 
-                val item = ImageItem(file.name, MainActivity.ROOTPATH + "/" + file.name, MainActivity.USERPATH + "/" + file.name, Helper.humanReadableByteCount(file.length()))
-                items.add(item)
+               // val item = ImageItem(file.name, MainActivity.ROOTPATH + "/" + file.name, MainActivity.USERPATH + "/" + file.name, Helper.humanReadableByteCount(file.length()))
+              //  items.add(item)
             }
         }
         imageItems!!.value = items

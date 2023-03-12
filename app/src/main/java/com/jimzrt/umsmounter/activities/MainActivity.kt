@@ -1,34 +1,23 @@
 package com.jimzrt.umsmounter.activities
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.documentfile.provider.DocumentFile
-import androidx.navigation.NavController
-import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.gson.GsonBuilder
-import com.jimzrt.umsmounter.BuildConfig
 import com.jimzrt.umsmounter.R
-import com.jimzrt.umsmounter.adapters.SlidersIntroAdapter
 import com.jimzrt.umsmounter.databinding.ActivityMainBinding
 import com.jimzrt.umsmounter.fragments.DownloadFragment.OnImageDownloadListener
 import com.jimzrt.umsmounter.fragments.ImageCreationFragment.OnImageCreationListener
 import com.jimzrt.umsmounter.model.DownloadItem
-import com.jimzrt.umsmounter.model.ImageItem
-import com.jimzrt.umsmounter.tasks.*
-import com.jimzrt.umsmounter.utils.BackgroundTask
-import com.jimzrt.umsmounter.utils.Helper
 import com.jimzrt.umsmounter.utils.SharedPrefsHelper
 
 
@@ -36,27 +25,30 @@ class MainActivity : AppCompatActivity(), OnImageCreationListener, OnImageDownlo
 
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var appBarConfiguration: AppBarConfiguration
    // private var mainFragment: MainFragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
         SharedPrefsHelper.init(this)
-        setContentView(binding.root)
 
-        if (isFirstRun()) { // Set wizard slides
-            val intent = Intent(this, SlidersIntroAdapter::class.java)
-            binding.root.context.startActivity(intent)
+        if (isFirstRun()) {
+            val intent = Intent(this, SlidersIntroActivity::class.java)
+            startActivity(intent)
+        } else {
+            binding = ActivityMainBinding.inflate(layoutInflater)
+            setContentView(binding.root)
+
+            var navController = findNavController(R.id.nav_host_fragment_activity_main)
+            val navView: BottomNavigationView = binding.navView
+
+            val appBarConfiguration = AppBarConfiguration(
+                setOf(
+                    R.id.nav_home, R.id.nav_create_image, R.id.nav_credits
+                )
+            )
+            setupActionBarWithNavController(navController, appBarConfiguration)
+            navView.setupWithNavController(navController)
         }
-
-        setSupportActionBar(binding.appBarMain.toolbar)
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.nav_home, R.id.nav_credits, R.id.nav_credits), binding.drawerLayout
-        )
-        setupActionBarWithNavController(navController, appBarConfiguration)
-        binding.navView.setupWithNavController(navController)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -74,18 +66,14 @@ class MainActivity : AppCompatActivity(), OnImageCreationListener, OnImageDownlo
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-    }
-
     private fun isFirstRun() : Boolean {
-        return SharedPrefsHelper.read(SharedPrefsHelper.IS_FIRST_RUN, true) ||
-                 BuildConfig.VERSION_NAME != SharedPrefsHelper.read(SharedPrefsHelper.VERSION, "")
+        return SharedPrefsHelper.read(SharedPrefsHelper.IS_FIRST_RUN, true)
+                //||
+                // BuildConfig.VERSION_NAME != SharedPrefsHelper.read(SharedPrefsHelper.VERSION, "")
     }
 
     override fun onImageCreation(imageItem: String?) {
-        val imageItemObj = ImageItem(imageItem!!, "$ROOTPATH/$imageItem", "$USERPATH/$imageItem", Helper.humanReadableByteCount(0))
+        //val imageItemObj = ImageItem(imageItem!!, "$ROOTPATH/$imageItem", "$USERPATH/$imageItem", Helper.humanReadableByteCount(0))
         //mainFragment!!.createImage(imageItemObj)
     }
 
@@ -103,8 +91,8 @@ class MainActivity : AppCompatActivity(), OnImageCreationListener, OnImageDownlo
             if (resultCode == Activity.RESULT_OK) {
                 val name = data!!.getStringExtra("name")
                 val url = data.getStringExtra("url")
-                val imageItem = ImageItem(name!!, "$ROOTPATH/$name", "$USERPATH/$name", Helper.humanReadableByteCount(0))
-                imageItem.url = url
+               // val imageItem = ImageItem(name!!, "$ROOTPATH/$name", "$USERPATH/$name", Helper.humanReadableByteCount(0))
+               // imageItem.url = url
             }
         }
     }

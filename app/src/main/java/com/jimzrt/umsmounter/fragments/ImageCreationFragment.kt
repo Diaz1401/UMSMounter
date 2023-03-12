@@ -89,7 +89,14 @@ class ImageCreationFragment : Fragment() {
                         barProgressDialog.setMessage("Preparing...")
                         Helper.verifyStoragePermissions(activity)
                     }
-                    Shell.su("busybox truncate -s" + imageSize + "M " + MainActivity.ROOTPATH + "/tmp.img", "echo \"x\\nc\\n" + imageSize + "\\nr\\no\\nn\\np\\n1\\n2\\n\\nt\\nc\\na\\n1\\nw\\n\" | busybox fdisk -S 32 -H 64 " + MainActivity.ROOTPATH + "/tmp.img", "fdisk -l " + MainActivity.ROOTPATH + "/tmp.img", "busybox dd if=" + MainActivity.ROOTPATH + "/tmp.img of=" + MainActivity.ROOTPATH + "/" + imageName + " bs=512 count=2048", "rm " + MainActivity.ROOTPATH + "/tmp.img", "busybox truncate -s" + (imageSize - 1) + "M " + MainActivity.ROOTPATH + "/fat.img", "busybox mkfs.vfat -n DRIVE " + MainActivity.ROOTPATH + "/fat.img", "chmod 777 " + MainActivity.ROOTPATH + "/fat.img", "chmod 777 " + MainActivity.ROOTPATH + "/" + imageName).exec()
+                    Shell.cmd("busybox truncate -s" + imageSize + "M " + MainActivity.ROOTPATH + "/tmp.img",
+                        "echo \"x\\nc\\n" + imageSize + "\\nr\\no\\nn\\np\\n1\\n2\\n\\nt\\nc\\na\\n1\\nw\\n\" | busybox fdisk -S 32 -H 64 " + MainActivity.ROOTPATH + "/tmp.img",
+                        "fdisk -l " + MainActivity.ROOTPATH + "/tmp.img",
+                        "busybox dd if=" + MainActivity.ROOTPATH + "/tmp.img of=" + MainActivity.ROOTPATH + "/" + imageName + " bs=512 count=2048",
+                        "rm " + MainActivity.ROOTPATH + "/tmp.img",
+                        "busybox truncate -s" + (imageSize - 1) + "M " + MainActivity.ROOTPATH + "/fat.img",
+                        "busybox mkfs.vfat -n DRIVE " + MainActivity.ROOTPATH + "/fat.img",
+                        "chmod 777 " + MainActivity.ROOTPATH + "/fat.img", "chmod 777 " + MainActivity.ROOTPATH + "/" + imageName).exec()
                     activity!!.runOnUiThread {
                         barProgressDialog.progress = 100
                         barProgressDialog.dismiss()

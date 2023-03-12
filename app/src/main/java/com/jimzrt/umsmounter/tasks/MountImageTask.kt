@@ -49,10 +49,10 @@ class MountImageTask(imageItem: ImageItem, mode: String) : BaseTask() {
                     "rm /config/usb_gadget/g1/configs/b.1/f*",
                     "mkdir -p /config/usb_gadget/g1/functions/mass_storage.0/lun.0/",
                     "ln -s /config/usb_gadget/g1/functions/mass_storage.0 /config/usb_gadget/g1/configs/b.1/f1",
-                    "echo 1 > $usbPath/removable",
-                    "echo 0 > $usbPath/ro",
-                    "echo 1 > $usbPath/cdrom",
-                    "echo \"/storage/emulated/0/ISO/MyImage.iso\" > " + usbPath + "/file",
+                    "echo 1 > /config/usb_gadget/g1/functions/mass_storage.0/lun.0/removable",
+                    "echo 0 > /config/usb_gadget/g1/functions/mass_storage.0/lun.0/ro",
+                    "echo 1 > /config/usb_gadget/g1/functions/mass_storage.0/lun.0/cdrom",
+                    "echo \"/storage/emulated/0/ISO/MyImage.iso\" > /config/usb_gadget/g1/functions/mass_storage.0/lun.0/file",
                     "getprop sys.usb.controller > /config/usb_gadget/g1/UDC",
                     "setprop sys.usb.config cdrom").exec()
                 result = """${imageItem.name} mounted!
@@ -64,7 +64,7 @@ class MountImageTask(imageItem: ImageItem, mode: String) : BaseTask() {
                         "echo > $usbPath/file",
                         "echo $ro > $usbPath/ro",
                         "echo $cdrom >  $usbPath/cdrom",
-                        "echo " + imageItem.rootPath + " > " + usbPath + "/file",
+                        //"echo " + imageItem.rootPath + " > " + usbPath + "/file",
                         "setprop sys.usb.config mass_storage").exec()
                 result = """${imageItem.name} mounted!
 """

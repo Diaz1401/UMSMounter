@@ -1,6 +1,6 @@
 package com.jimzrt.umsmounter.model
+class ImageItem(var name: String, var size: String, var type : ImageType) : Comparable<ImageItem> {
 
-class ImageItem(var name: String, var rootPath: String, var userPath: String, var size: String) : Comparable<ImageItem> {
     var url: String? = null
     var isDownloading = false
 
@@ -28,5 +28,4 @@ class ImageItem(var name: String, var rootPath: String, var userPath: String, va
     override fun compareTo(other: ImageItem): Int {
         return name.compareTo(other.name)
     }
-
 }

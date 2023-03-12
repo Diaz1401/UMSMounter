@@ -29,7 +29,7 @@ class SlideSecondFragment : Fragment(), SlidePolicy {
         super.onViewCreated(view, savedInstanceState)
         var button = view.findViewById<Button>(R.id.selectDirectoryButoon)
         var filePickerIntent = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
-           onDirectoryPickCompleted(uri)
+           onDirectoryPickCompleted(uri!!)
         }
         button.setOnClickListener {
             filePickerIntent.launch(null)
@@ -54,7 +54,6 @@ class SlideSecondFragment : Fragment(), SlidePolicy {
                 Intent.FLAG_GRANT_READ_URI_PERMISSION or
                         Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             )
-            Log.d("VEAMOS", "DIRPATHJAJA: ${uri.path}")
             SharedPrefsHelper.write(SharedPrefsHelper.HAS_RW_EXTERNAL_PERMISSION, true)
             SharedPrefsHelper.write(SharedPrefsHelper.USER_PATH, uri.path!!)
             /* Necesito esto para leer los ficheros

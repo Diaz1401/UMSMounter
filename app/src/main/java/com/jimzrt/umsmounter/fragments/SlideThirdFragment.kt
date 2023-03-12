@@ -4,6 +4,7 @@ package com.jimzrt.umsmounter.fragments
 import android.graphics.Color.GREEN
 import android.graphics.Color.RED
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,6 +37,7 @@ class SlideThirdFragment : Fragment(), SlidePolicy {
             textCompatibility.setTextColor(RED)
             textCompatibility.text = NOT_COMPATIBLE_TEXT
         }
+        Log.d("FIRSTRUN", "Set to false!!!")
         SharedPrefsHelper.write(SharedPrefsHelper.IS_FIRST_RUN, false)
     }
 

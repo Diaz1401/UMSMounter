@@ -1,252 +1,82 @@
 package com.jimzrt.umsmounter.fragments
 
-import android.app.AlertDialog
-import android.content.Context
-import android.content.DialogInterface
-import android.graphics.Color
+import android.content.res.ColorStateList
+import android.graphics.Color.RED
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.TooltipCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SimpleItemAnimator
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.jimzrt.umsmounter.R
-import com.jimzrt.umsmounter.activities.MainActivity
 import com.jimzrt.umsmounter.adapters.ImageListAdapter
-import com.jimzrt.umsmounter.adapters.ImageListAdapter.OnImageListListener
+import com.jimzrt.umsmounter.databinding.FragmentMainBinding
 import com.jimzrt.umsmounter.model.ImageItem
-import com.jimzrt.umsmounter.tasks.MountImageTask
-import com.jimzrt.umsmounter.tasks.UnmountingTask
-import com.jimzrt.umsmounter.utils.BackgroundTask
-import com.jimzrt.umsmounter.utils.Helper
-import com.jimzrt.umsmounter.viewmodels.ImageItemViewModel
-import com.tonyodev.fetch2.*
-import com.tonyodev.fetch2.Fetch.Impl.getInstance
-import com.tonyodev.fetch2core.DownloadBlock
-import com.tonyodev.fetch2core.Func
-import com.topjohnwu.superuser.Shell
-import java.io.*
-import java.util.*
-import kotlin.math.ceil
+import com.jimzrt.umsmounter.tasks.ImagesController
 
 /**
  * A placeholder fragment containing a simple view.
  */
-class MainFragment : Fragment(), OnImageListListener {
-    private var listView: RecyclerView? = null
-    private var listViewAdapter: ImageListAdapter? = null
-    private var usbMode: Spinner? = null
-    private var populate = false
-    private var functionMode: String? = "mtp,adb"
-    private var mainFetch: Fetch? = null
-    private var model: ImageItemViewModel? = null
+class MainFragment : Fragment() {
 
-    override fun onActivityCreated(bundle: Bundle?) {
-        super.onActivityCreated(bundle)
-        if (populate) {
-            populate = false
-        }
-    }
-
-    override fun onHiddenChanged(hidden: Boolean) {
-        super.onHiddenChanged(hidden)
-        if (!hidden) {
-            if (activity != null) {
-                (activity as AppCompatActivity?)!!.supportActionBar!!.title = "UMS Mounter222222"
-            }
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mainFetch!!.close()
-    }
+    private lateinit var imagesController : ImagesController
+    private lateinit var bindings : FragmentMainBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        Log.d("AVER", "Entro a Main Fragment")
-        if (mainFetch == null) {
-            val fetchConfiguration = FetchConfiguration.Builder(context!!)
-                    .setDownloadConcurrentLimit(4) // Allows Fetch to download 4 downloads in Parallel.
-                    .enableLogging(true)
-                    .build()
-            mainFetch = getInstance(fetchConfiguration)
-            mainFetch!!.cancelAll()
-            mainFetch!!.removeAll()
-        }
-        val view = inflater.inflate(R.layout.fragment_main, container, false)
-        /*
-        if (activity != null) {
-            (activity as AppCompatActivity?)!!.supportActionBar!!.title = "UMS Mounter222222222222"
-        }*/
-        listView = view.findViewById(R.id.listview)
-        val mLayoutManager = LinearLayoutManager(activity)
-        listView?.layoutManager = mLayoutManager
-        model = ViewModelProvider(this).get(ImageItemViewModel::class.java)
-        listViewAdapter = ImageListAdapter(model!!.getImages(false).value, context!!, this)
-        (listView?.itemAnimator as SimpleItemAnimator?)!!.supportsChangeAnimations = false
-        listView?.adapter = listViewAdapter
-        listView?.setHasFixedSize(true)
-        listView?.itemAnimator!!.changeDuration = 0
-        listView?.itemAnimator!!.addDuration = 500
-        listView?.itemAnimator!!.moveDuration = 500
-        listView?.itemAnimator!!.removeDuration = 500
-        val dividerItemDecoration = DividerItemDecoration(listView!!.context,
-                mLayoutManager.orientation)
-        listView?.addItemDecoration(dividerItemDecoration)
-        usbMode = view.findViewById(R.id.spinner)
-        val usbModeAdapter = ArrayAdapter(context!!, android.R.layout.simple_spinner_dropdown_item,
-                ArrayList<String>())
-        usbMode?.adapter = usbModeAdapter
-        val refreshButton = view.findViewById<ImageButton>(R.id.buttonRefresh)
-        refreshButton.setOnClickListener {
-            // populateList();
-            listViewAdapter!!.addItems(model!!.getImages(true).value!!)
-            Toast.makeText(context, "List updated!", Toast.LENGTH_LONG).show()
-        }
-        val mySwipeRefreshLayout: SwipeRefreshLayout = view.findViewById(R.id.swiperefresh)
-        mySwipeRefreshLayout.setOnRefreshListener {
-            listViewAdapter!!.addItems(model!!.getImages(true).value!!)
-            mySwipeRefreshLayout.isRefreshing = false
-            Toast.makeText(context, "List updated!", Toast.LENGTH_LONG).show()
-        }
-        val sharedPref = context!!.getSharedPreferences(null, Context.MODE_PRIVATE)
-        val textMode = view.findViewById<TextView>(R.id.textMode)
-        textMode.text = sharedPref.getString("usbMode", "Not Supported")
-        val modes: MutableList<String> = ArrayList(Arrays.asList("Writable USB", "Read-only USB"))
-        if (sharedPref.getBoolean("cdrom", false)) {
-            modes.add("CD-ROM")
-        }
-        usbModeAdapter.clear()
-        usbModeAdapter.addAll(modes)
-        usbMode?.setSelection(0)
-        val statusText = view.findViewById<TextView>(R.id.statusText)
-        statusText.text = "Nothing mounted"
-        statusText.setTextColor(Color.LTGRAY)
-        model!!.selected.observe(viewLifecycleOwner, Observer { image: ImageItem? -> listViewAdapter!!.setSelectedItem(image) })
-        model!!.downloading.observe(viewLifecycleOwner, Observer { image: ImageItem? ->
-            Log.i("lala", "position: " + listViewAdapter!!.getPositionOfItem(image!!))
-            listViewAdapter!!.notifyItemChanged(listViewAdapter!!.getPositionOfItem(image), "download")
-        })
-        model!!.removed.observe(viewLifecycleOwner, Observer { image: ImageItem ->
-            Log.i("lala", "REMOVEDDD")
-            val file = File(image.userPath)
-            file.delete()
-            listViewAdapter!!.remove(image)
-        })
-        model!!.added.observe(viewLifecycleOwner, Observer { image: ImageItem? ->
-            Log.i("lala", "ADDEDDD")
-            listView?.smoothScrollToPosition(listViewAdapter!!.addItem(image!!))
-        })
-        model!!.mounted.observe(viewLifecycleOwner, Observer { image: ImageItem? ->
-            if (image?.mounted!!) {
-                Log.i("lala", "Mounted")
-                statusText.text = image.name + " mounted"
-                statusText.setTextColor(Color.DKGRAY)
-                listViewAdapter!!.notifyItemChanged(listViewAdapter!!.getPositionOfItem(image), "mount")
-            } else {
-                Log.i("lala", "Unounted")
-                statusText.text = "Nothing mounted"
-                statusText.setTextColor(Color.LTGRAY)
-                listViewAdapter!!.notifyItemChanged(listViewAdapter!!.getPositionOfItem(image), "unmount")
-            }
-        })
-        return view
+                              savedInstanceState: Bundle?): View {
+        bindings = FragmentMainBinding.inflate(layoutInflater)
+        imagesController = ImagesController(requireContext())
+        return bindings.root
     }
 
-    fun unmount(functionMode: String?) {
-        activity?.let {
-            BackgroundTask(it).setDelegate(object : BackgroundTask.AsyncResponse {
-                override fun processFinish(successful: Boolean?, output: String?) {
-                    if (successful!!) {
-                        model!!.unmount()
-                    } else {
-                        val builder = AlertDialog.Builder(context)
-                        builder.setMessage(output)
-                                .setTitle("Error!")
-                        builder.setPositiveButton("Ok", null)
-                        val dialog = builder.create()
-                        dialog.show()
-                    }
-                }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-            }).setTasks(arrayOf(UnmountingTask(functionMode!!))).execute()
+        val listView = view.findViewById(R.id.listView) as ListView
+        // Configure ListView
+        val localImages = imagesController.getLocalImages()
+        listView.adapter = ImageListAdapter(requireContext(), localImages)
+        listView.setOnItemClickListener{ adapterView, _, position, _ ->
+            onListItemClick(adapterView, position)
+        }
+
+        // Configure FloatingActionButton
+        if (imagesController.isImageMounted()) {
+            bindings.fab.backgroundTintList = ColorStateList.valueOf(RED)
+        }
+        bindings.fab.setOnClickListener{onFloatingActionButtonClick()}
+
+    }
+
+    private fun onFloatingActionButtonLongClick() : Boolean {
+        Log.d("TOOLTIP", "TOOLTIP")
+        TooltipCompat.setTooltipText(requireView(), "This is a tooltip")
+        view?.requestFocus() // Request focus for the view
+        return true
+    }
+
+    private fun onFloatingActionButtonClick() {
+        if (imagesController.isImageMounted()) {
+            imagesController.unmountImage()
+            bindings.fab.backgroundTintList = ColorStateList
+                .valueOf(ContextCompat.getColor(requireContext(), R.color.bright_grey))
         }
     }
 
-    private fun mount(imageItem: ImageItem?) {
-        val output = Shell.su("getprop sys.usb.config").exec().out
-        functionMode = output[0]
-        if (functionMode == null || functionMode!!.contains("mass_storage")) {
-            functionMode = "mtp,adb"
-        }
-        activity?.let {
-            BackgroundTask(it).setDelegate(object : BackgroundTask.AsyncResponse {
-                override fun processFinish(successful: Boolean?, output: String?) {
-                    if (successful!!) {
-                        if (imageItem != null) {
-                            model!!.mount(imageItem)
-                        }
-                    } else {
-                        val builder = AlertDialog.Builder(context)
-                        builder.setMessage(output)
-                                .setTitle("Error!")
-                        builder.setPositiveButton("Ok", null)
-                        val dialog = builder.create()
-                        dialog.show()
-                        if (imageItem != null) {
-                            model!!.unmount(imageItem)
-                        }
-                    }
-                }
-            }).setTasks(arrayOf(MountImageTask(imageItem!!, usbMode!!.selectedItem.toString()))).execute()
-        }
+    private fun onListItemClick(adapterView: AdapterView<*>, position: Int) { // ListView
+        val image = adapterView.getItemAtPosition(position) as ImageItem
+        imagesController.mountImage(image)
+        Toast.makeText(context, "Hosting $image", Toast.LENGTH_LONG).show()
+        bindings.fab.backgroundTintList = ColorStateList.valueOf(RED)
     }
 
-    override fun onMountImageButtonClicked() {
-        val mounted = model!!.mounted.value
-        val selected = model!!.selected.value
-        if (mounted == null || !mounted.mounted) {
-            mount(selected)
-        } else if (mounted !== selected) {
-            unmount(functionMode)
-            mount(selected)
-        } else {
-            unmount(functionMode)
-        }
-    }
 
-    override fun onDeleteImageButtonClicked() {
-        val checkedItem = model!!.selected.value
-        val adb = AlertDialog.Builder(activity)
-        adb.setTitle("Delete")
-        adb.setIcon(android.R.drawable.ic_dialog_alert)
-        adb.setMessage("Do you really want to delete " + checkedItem!!.name + "?")
-        adb.setPositiveButton("Delete") { _: DialogInterface?, _: Int ->
-            if (checkedItem.downloadId != -1) {
-                mainFetch!!.cancel(checkedItem.downloadId)
-                mainFetch!!.remove(checkedItem.downloadId)
-            }
-            Toast.makeText(context, "Deleted!", Toast.LENGTH_SHORT).show()
-            model!!.unselect()
-            model!!.remove(checkedItem)
-        }
-        adb.setNegativeButton("Cancel", null)
-        adb.show()
-    }
 
-    override fun onImageSelected(item: ImageItem?) {
-        model!!.select(item)
-    }
+/*
 
     fun createImage(destFile: ImageItem) {
         model!!.unselect()
@@ -275,7 +105,7 @@ class MainFragment : Fragment(), OnImageListListener {
                         val finalPos = pos
                         val progress = (finalPos * buffer.size * 100L / size).toInt()
                         destFile.progress = progress
-                        destFile.size = Helper.humanReadableByteCount(finalPos * buffer.size)
+                      //  destFile.size = Helper.humanReadableByteCount(finalPos * buffer.size)
                         if (progress - oldProgress[0] > 1) {
                             oldProgress[0] = progress
                             model!!.downloading(destFile)
@@ -301,10 +131,10 @@ class MainFragment : Fragment(), OnImageListListener {
 
                 //
                 val finalSize = size
-                activity!!.runOnUiThread {
+                requireActivity().runOnUiThread {
                     Toast.makeText(activity, "Image successfully created", Toast.LENGTH_LONG).show()
                     destFile.isDownloading = false
-                    destFile.size = Helper.humanReadableByteCount(finalSize)
+                 //   destFile.size = Helper.humanReadableByteCount(finalSize)
                     model!!.downloading(destFile)
                     listView!!.smoothScrollToPosition(listViewAdapter!!.getPositionOfItem(destFile))
                     model!!.select(destFile)
@@ -351,7 +181,7 @@ class MainFragment : Fragment(), OnImageListListener {
             override fun onAdded(download: Download) {}
             override fun onCompleted(download: Download) {
                 imageItem.isDownloading = false
-                imageItem.size = Helper.humanReadableByteCount(download.total)
+            //    imageItem.size = Helper.humanReadableByteCount(download.total)
                 model!!.downloading(imageItem)
                 listView!!.smoothScrollToPosition(listViewAdapter!!.getPositionOfItem(imageItem))
                 model!!.select(imageItem)
@@ -363,7 +193,7 @@ class MainFragment : Fragment(), OnImageListListener {
             override fun onProgress(download: Download, etaInMilliSeconds: Long, downloadedBytesPerSecond: Long) {
                 if (request.id == download.id) {
                     imageItem.progress = download.progress
-                    imageItem.size = Helper.humanReadableByteCount(download.downloaded) + " / " + Helper.humanReadableByteCount(download.total) + " - " + Helper.humanReadableByteCount(downloadedBytesPerSecond) + "/s"
+         //           imageItem.size = Helper.humanReadableByteCount(download.downloaded) + " / " + Helper.humanReadableByteCount(download.total) + " - " + Helper.humanReadableByteCount(downloadedBytesPerSecond) + "/s"
                     model!!.downloading(imageItem)
                     val progress = download.progress
                     Log.d("Fetch", "Progress Completed :$progress")
@@ -389,4 +219,6 @@ class MainFragment : Fragment(), OnImageListListener {
         mainFetch!!.addListener(fetchListener)
         mainFetch!!.enqueue(request, Func { download: Request -> Log.i("lala", "added " + download.id) }, Func { error: Error -> Log.i("lala", "error  " + error.name) })
     }
+*/
+
 }
