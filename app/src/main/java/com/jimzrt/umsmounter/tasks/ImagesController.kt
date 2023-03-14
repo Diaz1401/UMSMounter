@@ -50,8 +50,6 @@ class ImagesController(val context: Context) {
         return false
     }
 
-
-
     fun formatBytes(size: Double, precision: Int = 2): String {
         val base = log(size, 1024.0)
         val suffixes = arrayOf("", "KB", "MB", "GB", "TB")
@@ -61,7 +59,8 @@ class ImagesController(val context: Context) {
         return "${"%.${precision}f".format(value)} ${suffixes[suffixIndex]}"
     }
 
-    fun mountImageAsMassStorage(image : ImageItem) {
+    fun mountImage(image : ImageItem) {
+        /*
         Shell.cmd("setprop sys.usb.configfs 1",
             "echo \"\" > /config/usb_gadget/g1/UDC",
             "rm /config/usb_gadget/g1/configs/b.1/f*",
@@ -73,9 +72,11 @@ class ImagesController(val context: Context) {
             "echo \"/storage/emulated/0/ISO/$image\" > /config/usb_gadget/g1/configs/b.1/f1/lun.0/file",
             "getprop sys.usb.controller > /config/usb_gadget/g1/UDC",
             "setprop sys.usb.config mass_storage").exec()
+            
+         */
     }
 
-    fun mountImage(image : ImageItem) {
+    fun mountImageAs(image : ImageItem) {
         Shell.cmd("setprop sys.usb.configfs 1",
             "echo \"\" > /config/usb_gadget/g1/UDC",
             "rm /config/usb_gadget/g1/configs/b.1/f*",
@@ -110,6 +111,7 @@ class ImagesController(val context: Context) {
         return false
     }
 
+    //May be useful in the future
     fun searchDirectoryForFile(directory: SuFile, fileName: String): String? {
         if (directory.isDirectory) {
             val files = directory.listFiles()

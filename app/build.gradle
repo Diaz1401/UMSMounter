@@ -2,18 +2,12 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    // signingConfigs {
-    //     config {
-    //         keyAlias 'key0'
-    //         storeFile file('C:/Users/james/Documents/_programming/android/key.jks')
 
-    //     }
-    // }
-    compileSdkVersion 33
+    compileSdkVersion 31
     defaultConfig {
         applicationId "com.jimzrt.umsmounter"
         minSdkVersion 30
-        targetSdkVersion 33
+        targetSdkVersion 31
         versionCode 1
         versionName "0.1.2"
        // testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
@@ -50,7 +44,6 @@ repositories {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib:1.3.72"
-    implementation 'androidx.legacy:legacy-support-v13:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation("androidx.compose.material3:material3:1.0.1")
@@ -63,6 +56,8 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation "androidx.navigation:navigation-fragment-ktx:2.5.3"
     implementation "androidx.navigation:navigation-ui-ktx:2.5.3"
+    implementation("androidx.fragment:fragment-ktx:1.5.5")
+    implementation("androidx.activity:activity-ktx:1.6.1")
     implementation 'com.github.AppIntro:AppIntro:6.2.0'
 
 }

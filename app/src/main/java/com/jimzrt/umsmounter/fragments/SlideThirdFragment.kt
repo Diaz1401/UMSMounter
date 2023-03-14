@@ -13,6 +13,8 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.github.appintro.SlidePolicy
 import com.jimzrt.umsmounter.R
+import com.jimzrt.umsmounter.databinding.FragmentSlide2Binding
+import com.jimzrt.umsmounter.databinding.FragmentSlide3Binding
 import com.jimzrt.umsmounter.utils.SharedPrefsHelper
 import com.topjohnwu.superuser.io.SuFile
 
@@ -21,33 +23,42 @@ class SlideThirdFragment : Fragment(), SlidePolicy {
     private val NOT_COMPATIBLE_TEXT = "Not compatible"
     private val COMPATIBLE_TEXT = "Compatible"
 
+    private lateinit var bindings : FragmentSlide3Binding
+    private var isCompatible = false
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.fragment_slide3, container, false)
+    ): View? {
+        bindings = FragmentSlide3Binding.inflate(layoutInflater)
+        return bindings.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        var textCompatibility = view.findViewById<TextView>(R.id.statusKernelCompatibility)
-        if (SuFile(CONFIGFS_DIR).exists()) {
-            textCompatibility.setTextColor(GREEN)
-            textCompatibility.text = COMPATIBLE_TEXT
-        } else {
-            textCompatibility.setTextColor(RED)
-            textCompatibility.text = NOT_COMPATIBLE_TEXT
+        bindings.statusKernelCompatibility.visibility = View.INVISIBLE
+        bindings.checkCompatibilityButton.setOnClickListener {
+            var textCompatibility = bindings.statusKernelCompatibility
+            bindings.statusKernelCompatibility.visibility = View.VISIBLE
+            if (SuFile(CONFIGFS_DIR).exists()) {
+                textCompatibility.setTextColor(GREEN)
+                textCompatibility.text = COMPATIBLE_TEXT
+                isCompatible = true
+            } else {
+                textCompatibility.setTextColor(RED)
+                textCompatibility.text = NOT_COMPATIBLE_TEXT
+            }
         }
-        Log.d("FIRSTRUN", "Set to false!!!")
-        SharedPrefsHelper.write(SharedPrefsHelper.IS_FIRST_RUN, false)
     }
 
     override val isPolicyRespected: Boolean
-        get() = SuFile(CONFIGFS_DIR).exists()
+        get() = isCompatible
 
     override fun onUserIllegallyRequestedNextPage() {
         Toast.makeText(
             requireContext(),
-            "Sorry, you kernel is not supported",
+            "Sorry, you kernel does not support ConfigFS USB Gadget",
             Toast.LENGTH_SHORT
         ).show()
     }

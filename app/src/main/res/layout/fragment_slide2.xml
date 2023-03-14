@@ -21,11 +21,11 @@
         app:srcCompat="@drawable/ic_directory_image" />
 
     <Button
-        android:id="@+id/selectDirectoryButoon"
+        android:id="@+id/askReadPermissionsButoon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
-        android:text="Select directory" />
+        android:text="Get permissions" />
 
     <TextView
         android:id="@+id/adquireRootDescription"
@@ -33,7 +33,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_marginTop="60dp"
-        android:text="UMSMount needs a directory to access downloaded or created image files" />
+        android:text="UMSMount needs to access internal storage so you can import your ISO images" />
 
 
 

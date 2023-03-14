@@ -1,7 +1,6 @@
 package com.jimzrt.umsmounter.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +11,8 @@ import com.github.appintro.SlidePolicy
 import com.jimzrt.umsmounter.R
 import com.jimzrt.umsmounter.utils.SharedPrefsHelper
 import com.topjohnwu.superuser.Shell
+
+//import com.topjohnwu.superuser.Shell
 
 class SlideFirstFragment : Fragment(), SlidePolicy {
 
@@ -27,6 +28,7 @@ class SlideFirstFragment : Fragment(), SlidePolicy {
         button.setOnClickListener {
             Shell.cmd().exec() // We need this so the next function works
             val hasRootPermissions = Shell.isAppGrantedRoot()!!
+            SharedPrefsHelper.write(SharedPrefsHelper.HAS_ROOT_PERMISSIONS, true)
             SharedPrefsHelper.write(SharedPrefsHelper.HAS_ROOT_PERMISSIONS, hasRootPermissions)
         }
     }
@@ -35,11 +37,8 @@ class SlideFirstFragment : Fragment(), SlidePolicy {
         get() = SharedPrefsHelper.read(SharedPrefsHelper.HAS_ROOT_PERMISSIONS, false)
 
     override fun onUserIllegallyRequestedNextPage() {
-        Toast.makeText(
-            requireContext(),
-            "No root",
-            Toast.LENGTH_SHORT
-        ).show()
+        Toast.makeText(requireContext(), "Permissions have not been granted", Toast.LENGTH_SHORT).show()
+
     }
 
 
